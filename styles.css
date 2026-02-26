@@ -17,7 +17,7 @@ body{
    Hero de fondo
    ========================== */
 .background-image{
-  background:#000 url("imagenes/fondo.png") center / cover no-repeat;
+  background:#000 url("imagenes/fondo.avif") center / cover no-repeat;
   width:100%;
   min-height:100vh;
   display:flex;
@@ -25,13 +25,6 @@ body{
   justify-content:center;
   position:relative;
   contain: paint;
-}
-
-/* ✅ Si soporta AVIF, usa AVIF */
-@supports (background-image: url("imagenes/fondo.avif")) {
-  .background-image{
-    background:#000 url("imagenes/fondo.avif") center / cover no-repeat;
-  }
 }
 
 
