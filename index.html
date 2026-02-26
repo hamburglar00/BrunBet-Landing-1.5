@@ -247,29 +247,6 @@
     </div>
   </div>
 
-  <!-- Floating WhatsApp + Burbuja -->
-  <div id="wa-float" class="wa-float" aria-hidden="false">
-    <button id="wa-float-btn" class="wa-float__btn" aria-label="Abrir WhatsApp">
-      <img src="imagenes/whatsapp.png" alt="whatsapp" class="wa-float__icon" width="30" height="30" loading="lazy" />
-    </button>
-
-    <div id="wa-bubble" class="wa-bubble" role="dialog" aria-label="Chat WhatsApp">
-      <div class="wa-bubble__header">
-        <div class="wa-bubble__title">WhatsApp</div>
-        <button id="wa-bubble-close" class="wa-bubble__close" aria-label="Cerrar">✕</button>
-      </div>
-
-      <div class="wa-bubble__body">
-        <div class="wa-msg wa-msg--bot">¡Bienvenido!👋 Enviale un mensaje a nuestra cajera👇</div>
-      </div>
-
-      <div class="wa-bubble__footer">
-        <input id="wa-input" class="wa-input" type="text" value="Hola! Quiero info" />
-        <button id="wa-send" class="wa-send">Enviar</button>
-      </div>
-    </div>
-  </div>
-
   <!-- Overlay -->
   <div id="wa-redirect-overlay" class="wa-redirect-overlay" hidden>
     <div class="wa-redirect-box">
@@ -295,7 +272,6 @@
       },
 
       UI: {
-        DEFAULT_INPUT_TEXT: "Hola! Quiero info",
         OVERLAY_TEXT: "Redirigiendo al WhatsApp del Cajero...",
         CLICK_GET_NUMBER_DEADLINE_MS: 3500,
         OVERLAY_MAX_VISIBLE_MS: 5000,
@@ -489,7 +465,7 @@
     /************************************************************
      * CONTACTO PRINCIPAL
      ************************************************************/
-    async function contactarWhatsApp({ source="main_button", customText=null } = {}){
+    async function contactarWhatsApp({ source="main_button" } = {}){
       if(window.__waInFlight) return;
       window.__waInFlight = true;
 
@@ -529,11 +505,8 @@
         ? `${LANDING_CONFIG.PROMO.LANDING_TAG}-${uuidSegment}`
         : "";
 
-      const mensaje = (customText && String(customText).trim())
-        ? (promo_code ? `${String(customText).trim()} ${promo_code}` : String(customText).trim())
-        : buildMensaje(botName, promo_code);
+      const mensaje = buildMensaje(botName, promo_code);
 
-      // Pixel Contact
       try{
         if(window.fbq){
           fbq("set", "userData", {
@@ -558,7 +531,6 @@
         }
       }catch(e){}
 
-      // Payload al backend SIN GEO frontend
       const payload = {
         event_name: "Contact",
         event_id,
@@ -586,7 +558,6 @@
         brand: LANDING_CONFIG.BRAND_NAME,
         mode: LANDING_CONFIG.MODE,
 
-        // backend lo resuelve por headers
         geo_city: "",
         geo_region: "",
         geo_country: "",
@@ -596,7 +567,6 @@
 
       sendToBackend(payload);
 
-      // Delay mínimo para darle una chance al Pixel
       setTimeout(() => {
         window.location.assign(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(mensaje)}`);
       }, 120);
@@ -609,13 +579,6 @@
       warmupNumber();
 
       const btn = document.getElementById("whatsappButton");
-      const floatBtn = document.getElementById("wa-float-btn");
-      const bubble = document.getElementById("wa-bubble");
-      const closeBtn = document.getElementById("wa-bubble-close");
-      const sendBtn = document.getElementById("wa-send");
-      const input = document.getElementById("wa-input");
-
-      if(input) input.value = LANDING_CONFIG.UI.DEFAULT_INPUT_TEXT || "Hola! Quiero info";
 
       if(btn){
         btn.addEventListener("click", e => {
@@ -624,49 +587,6 @@
         });
       }
 
-      let openedOnce = false;
-
-      function openBubble(){
-        if(bubble){
-          bubble.classList.add("is-open");
-          openedOnce = true;
-        }
-      }
-
-      function closeBubble(){
-        if(bubble) bubble.classList.remove("is-open");
-      }
-
-      function toggleBubble(){
-        if(bubble){
-          bubble.classList.toggle("is-open");
-          openedOnce = true;
-        }
-      }
-
-      window.addEventListener("load", () => {
-        setTimeout(() => {
-          if(!openedOnce) openBubble();
-        }, 3500);
-      });
-
-      if(floatBtn) floatBtn.addEventListener("click", toggleBubble);
-      if(closeBtn) closeBtn.addEventListener("click", closeBubble);
-
-      function sendFromBubble(){
-        const text = (input?.value || LANDING_CONFIG.UI.DEFAULT_INPUT_TEXT || "Hola! Quiero info").trim();
-        contactarWhatsApp({ source: "floating", customText: text });
-        closeBubble();
-      }
-
-      if(sendBtn) sendBtn.addEventListener("click", sendFromBubble);
-      if(input){
-        input.addEventListener("keydown", e => {
-          if(e.key === "Enter") sendFromBubble();
-        });
-      }
-
-      // auto redirect opcional
       if(LANDING_CONFIG.UI.AUTO_REDIRECT_ENABLED){
         const KEY = "wa_auto_redirect_fired";
         const already = sessionStorage.getItem(KEY) === "1";
@@ -699,7 +619,7 @@
               return;
             }
 
-            const msg = encodeURIComponent(LANDING_CONFIG.UI.DEFAULT_INPUT_TEXT || "Hola! Quiero info");
+            const msg = encodeURIComponent("Hola! Quiero info");
             window.location.assign(`https://wa.me/${cleanPhone}?text=${msg}`);
           }, LANDING_CONFIG.UI.AUTO_REDIRECT_DELAY_MS || 10000);
         });
