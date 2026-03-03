@@ -8,7 +8,7 @@
  **************************************************************/
 
 const CONFIG = {
-  AGENCIES: [{ id: 34, name: "" }],
+  AGENCIES: [{ id: 34, name: "Brunbet" }],
   BRAND_NAME: "",
 
   // Si querés minimizar fallback, ponelo en false:
@@ -20,7 +20,7 @@ const CONFIG = {
 
   // Más realista para serverless + upstream
   TIMEOUT_MS: 2500,
-  MAX_RETRIES: 3,
+  MAX_RETRIES: 2,
 
   UPSTREAM_BASE: "https://api.asesadmin.com/api/v1",
 };
